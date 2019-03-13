@@ -57,11 +57,17 @@ class IdentityManager(object):  # pragma: no cover
     """
 
     def __init__(self):
-        self.ks_client = get_keystoneclient()
+        self.ks_client = get_keystoneclient()  # type: keystoneclient.client.Client
 
         # TODO(adriant): decide if we want to have some function calls
         # throw errors if this is false.
         self.can_edit_users = settings.KEYSTONE.get('can_edit_users', True)
+
+    def validate_token(self, token):
+        try:
+            return self.ks_client.tokens.validate(token, include_catalog=False)
+        except ks_exceptions.NotFound:
+            return None
 
     def find_user(self, name, domain):
         try:
