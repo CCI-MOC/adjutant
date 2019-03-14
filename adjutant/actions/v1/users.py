@@ -75,10 +75,11 @@ class NewUserAction(UserNameAction, ProjectMixin, UserMixin):
             return
 
         id_manager = user_store.IdentityManager()
-        user = id_manager.validate_token(token_data['token'])
+        user = id_manager.validate_token(token_data['token'])['user']
 
         # Note(knikolla): Invalid token, exit.
         if not user:
+            self.add_note('Received request with invalid token')
             return False
 
         roles = id_manager.get_roles(user, self.project_id)
@@ -88,16 +89,18 @@ class NewUserAction(UserNameAction, ProjectMixin, UserMixin):
             self.action.need_token = False
             self.action.state = "complete"
             self.add_note(
-                'Existing user already has roles.'
+                'Accepted by %s. User already has roles.' % user['name']
             )
         else:
             self.roles = list(missing)
-            self.grant_roles(user, self.roles, self.project_id)
-            self.grant_roles(user, self.inherited_roles, self.project_id, True)
+            self.grant_roles(user['id'], self.roles, self.project_id)
+            self.grant_roles(user['id'], self.inherited_roles,
+                             self.project_id, True)
 
             self.add_note(
-                'User %s has been created, with roles %s in project %s.'
-                % (self.username, self.roles, self.project_id))
+                'Accepted by %s. User added with roles %s on project %s.'
+                % (user['name'], self.roles, self.project_id))
+        return True
 
 
 class ResetUserPasswordAction(UserNameAction, UserMixin):

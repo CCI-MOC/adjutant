@@ -132,7 +132,13 @@ class NewProjectWithUserAction(UserNameAction, ProjectMixin, UserMixin):
         'parent_id',
         'project_name',
         'username',
-        'email'
+        'email',
+
+        # TODO(knikolla): It should be possible to shift these to SSO.
+        'organization',
+        'organization_role',
+        'phone',
+        'moc_contact'
     ]
 
     def __init__(self, *args, **kwargs):

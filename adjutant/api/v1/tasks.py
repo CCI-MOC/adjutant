@@ -305,6 +305,7 @@ class CreateProject(TaskView):
 
     default_actions = ["NewProjectWithUserAction", ]
 
+    @utils.authenticated
     def post(self, request, format=None):
         """
         Unauthenticated endpoint bound primarily to NewProjectWithUser.
@@ -327,6 +328,8 @@ class CreateProject(TaskView):
 
         # parent_id for new project, if null defaults to domain:
         request.data['parent_id'] = class_conf.get('default_parent_id')
+
+        request.data['email'] = request.keystone_user['username']
 
         processed, status = self.process_actions(request)
 
