@@ -73,12 +73,6 @@ class NewProjectWithUserSerializer(BaseUserNameSerializer):
         max_length=64, default=None, allow_null=True)
     project_name = serializers.CharField(max_length=64)
 
-    # Note(knikolla): MOC
-    organization = serializers.CharField(max_length=64)
-    organization_role = serializers.CharField(max_length=64)
-    phone = serializers.CharField(max_length=64)
-    moc_contact = serializers.CharField(max_length=64)
-
 
 class ResetUserSerializer(BaseUserNameSerializer):
     domain_name = serializers.CharField(max_length=64, default='Default')
@@ -93,6 +87,7 @@ class EditUserRolesSerializer(BaseUserIdSerializer):
         choices=role_options, default=set)
     remove = serializers.BooleanField(default=False)
     project_id = serializers.CharField(max_length=64)
+    domain_id = serializers.CharField(max_length=64, default='default')
 
     def validate(self, data):
         if not data['roles'] and not data['inherited_roles']:

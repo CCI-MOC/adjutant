@@ -379,7 +379,9 @@ class SignUp(tasks.CreateProject):
         """
         return Response(status=404)
 
+    @utils.authenticated
     def post(self, request, format=None):
+        request.data['email'] = request.keystone_user['username']
         return super(SignUp, self).post(request)
 
 

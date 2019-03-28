@@ -26,6 +26,8 @@ from adjutant.actions.v1.resources import (
     SetProjectQuotaAction, UpdateProjectQuotasAction)
 from adjutant.actions.v1.misc import SendAdditionalEmailAction
 
+from adjutant.actions.v1 import (moc_actions, moc_serializers)
+
 
 # Update settings dict with tuples in the format:
 #   (<ActionClass>, <ActionSerializer>)
@@ -64,3 +66,7 @@ register_action_class(
 # Register Misc actions:
 register_action_class(
     SendAdditionalEmailAction, serializers.SendAdditionalEmailSerializer)
+
+# Register MOC actions
+register_action_class(moc_actions.MocNewProjectWithUserAction,
+                      moc_serializers.MocProjectWithUserSerializer)

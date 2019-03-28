@@ -39,22 +39,75 @@ class NewUserAction(UserNameAction, ProjectMixin, UserMixin):
     ]
 
     def _validate_target_user(self):
-        # Note(knikolla): Differently from the default adjutant flow
-        # we don't have to deal with creating users. A user will be
-        # always be present after they have authenticated since
-        # we're using federated identity.
+        id_manager = user_store.IdentityManager()
 
-        self.action.state = "pending"
-        self.action.need_token = True
-        self.set_token_fields(["token"])
+        # check if user exists and is valid
+        # this may mean we need a token.
+        user = self._get_target_user()
+        if not user:
+            self.add_note(
+                "No user present with username '%s'. "
+                "Need to create new user." % self.username)
+            if not id_manager.can_edit_users:
+                self.add_note(
+                    'Identity backend does not support user editing, '
+                    'cannot create new user.')
+                return False
+            self.action.need_token = True
+            # add to cache to use in template
+            self.action.task.cache['user_state'] = "default"
+            self.set_token_fields(["password"])
+            return True
+        if (not settings.USERNAME_IS_EMAIL
+                and getattr(user, 'email', None) != self.email):
+            self.add_note(
+                'Found matching username, but email did not match. '
+                'Reporting as invalid.')
+            return False
+
+        if not user.enabled:
+            self.add_note(
+                "Existing disabled user '%s' with matching email." %
+                self.email)
+            if not id_manager.can_edit_users:
+                self.add_note(
+                    'Identity backend does not support user editing, '
+                    'cannot renable user.')
+                return False
+            self.action.need_token = True
+            self.action.state = "disabled"
+            # add to cache to use in template
+            self.action.task.cache['user_state'] = "disabled"
+            # as they are disabled we'll reset their password
+            self.set_token_fields(["password"])
+            return True
+
+        # role_validation
+        roles = id_manager.get_roles(user, self.project_id)
+        role_names = {role.name for role in roles}
+        missing = set(self.roles) - role_names
+        if not missing:
+            self.action.need_token = False
+            self.action.state = "complete"
+            self.add_note(
+                'Existing user already has roles.'
+            )
+        else:
+            self.roles = list(missing)
+            self.action.need_token = True
+            self.set_token_fields(["confirm"])
+            self.action.state = "existing"
+            # add to cache to use in template
+            self.action.task.cache['user_state'] = "existing"
+            self.add_note(
+                'Existing user with matching email missing roles.')
 
         return True
 
     def _validate(self):
         self.action.valid = validate_steps([
             self._validate_role_permissions,
-            self._validate_keystone_user_domain_id,
-            self._validate_keystone_user_project_id,
+            self._validate_keystone_user,
             self._validate_domain_id,
             self._validate_project_id,
             self._validate_target_user,
@@ -74,33 +127,45 @@ class NewUserAction(UserNameAction, ProjectMixin, UserMixin):
         if not self.valid:
             return
 
-        id_manager = user_store.IdentityManager()
-        user = id_manager.validate_token(token_data['token'])['user']
-
-        # Note(knikolla): Invalid token, exit.
-        if not user:
-            self.add_note('Received request with invalid token')
-            return False
-
-        roles = id_manager.get_roles(user, self.project_id)
-        role_names = {role.name for role in roles}
-        missing = set(self.roles) - role_names
-        if not missing:
-            self.action.need_token = False
-            self.action.state = "complete"
-            self.add_note(
-                'Accepted by %s. User already has roles.' % user['name']
-            )
-        else:
-            self.roles = list(missing)
-            self.grant_roles(user['id'], self.roles, self.project_id)
-            self.grant_roles(user['id'], self.inherited_roles,
-                             self.project_id, True)
+        if self.action.state == "default":
+            # default action: Create a new user in the tenant and add roles
+            user = self.create_user(token_data['password'])
+            self.grant_roles(user, self.roles, self.project_id)
+            self.grant_roles(user, self.inherited_roles, self.project_id, True)
 
             self.add_note(
-                'Accepted by %s. User added with roles %s on project %s.'
-                % (user['name'], self.roles, self.project_id))
-        return True
+                'User %s has been created, with roles %s in project %s.'
+                % (self.username, self.roles, self.project_id))
+
+        elif self.action.state == "disabled":
+            # first re-enable user
+            user = self.find_user()
+            self.enable_user(user)
+            self.grant_roles(user, self.roles, self.project_id)
+            self.grant_roles(user, self.inherited_roles, self.project_id, True)
+            self.update_password(token_data['password'])
+
+            self.add_note('User %s password has been changed.' % self.username)
+
+            self.add_note(
+                'Existing user %s has been re-enabled and given roles %s'
+                ' in project %s.'
+                % (self.username, self.roles, self.project_id))
+
+        elif self.action.state == "existing":
+            # Existing action: only add roles.
+            user = self.find_user()
+            self.grant_roles(user, self.roles, self.project_id)
+            self.grant_roles(user, self.inherited_roles, self.project_id, True)
+
+            self.add_note(
+                'Existing user %s has been given roles %s in project %s.'
+                % (self.username, self.roles, self.project_id))
+        elif self.action.state == "complete":
+            # complete action: nothing to do.
+            self.add_note(
+                'Existing user %s already had roles %s in project %s.'
+                % (self.username, self.roles, self.project_id))
 
 
 class ResetUserPasswordAction(UserNameAction, UserMixin):
@@ -185,6 +250,7 @@ class EditUserRolesAction(UserIdAction, ProjectMixin, UserMixin):
     """
 
     required = [
+        'domain_id',
         'project_id',
         'user_id',
         'roles',
@@ -262,8 +328,9 @@ class EditUserRolesAction(UserIdAction, ProjectMixin, UserMixin):
 
     def _validate(self):
         self.action.valid = validate_steps([
-            self._validate_keystone_user_project_id,
+            self._validate_keystone_user,
             self._validate_role_permissions,
+            self._validate_domain_id,
             self._validate_project_id,
             self._validate_target_user,
             self._validate_user_roles,

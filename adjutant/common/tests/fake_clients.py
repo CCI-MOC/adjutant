@@ -479,6 +479,9 @@ class FakeManager(object):
         for cred in found:
             identity_cache['credentials'].remove(cred)
 
+    def validate_token(self, token):
+        raise NotImplemented
+
 
 class FakeOpenstackClient(object):
     class Quotas(object):

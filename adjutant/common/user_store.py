@@ -57,7 +57,7 @@ class IdentityManager(object):  # pragma: no cover
     """
 
     def __init__(self):
-        self.ks_client = get_keystoneclient()  # type: keystoneclient.client.Client
+        self.ks_client = get_keystoneclient()
 
         # TODO(adriant): decide if we want to have some function calls
         # throw errors if this is false.

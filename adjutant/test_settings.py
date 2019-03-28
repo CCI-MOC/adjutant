@@ -88,6 +88,7 @@ ACTIVE_TASKVIEWS = [
     'EditUser',
     'UpdateEmail',
     'UpdateProjectQuotas',
+    'SignUp'
 ]
 
 DEFAULT_TASK_SETTINGS = {
