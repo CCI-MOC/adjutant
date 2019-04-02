@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     image: adjutant-moc
     ports:
-      - "5000:80"  # host:container
+      - "80:80"  # host:container
 
   adjutant-database:
     container_name: database

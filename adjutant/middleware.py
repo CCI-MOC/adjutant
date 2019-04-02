@@ -52,9 +52,9 @@ class TestingHeaderUnwrapper(object):
                 'project_domain_id':
                     request.META['headers'].get(
                         'project_domain_id', 'default'),
-                'project_name': request.META['headers']['project_name'],
-                'project_id': request.META['headers']['project_id'],
-                'roles': request.META['headers']['roles'].split(','),
+                'project_name': request.META['headers'].get('project_name', ''),
+                'project_id': request.META['headers'].get('project_id', ''),
+                'roles': request.META['headers'].get('roles', '').split(','),
                 'user_domain_id':
                     request.META['headers'].get('user_domain_id', 'default'),
                 'username': request.META['headers']['username'],
