@@ -188,14 +188,8 @@ DEFAULT_ACTION_SETTINGS:
 # These are cascading overrides for the default settings:
 TASK_SETTINGS:
     signup:
-        # You can override 'default_actions' if needed for given taskviews
-        # The order of the actions is order of execution.
-        #
-        # default_actions:
-        #     - NewProjectAction
-        #
-        # Additional actions for views
-        # These will run after the default actions, in the given order.
+        default_actions:
+            - NewProjectAction
         additional_actions:
             - NewProjectDefaultNetworkAction
             - SetProjectQuotaAction

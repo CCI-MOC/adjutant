@@ -17,13 +17,12 @@ from adjutant.common import user_store
 from adjutant.actions.utils import validate_steps
 
 
-class MocNewProjectWithUserAction(projects.NewProjectWithUserAction):
+class MocNewProjectAction(projects.NewProjectAction):
     required = [
         'domain_id',
         'parent_id',
         'project_name',
-        'username',
-        'email',
+        'description',
 
         # TODO(knikolla): It should be possible to fetch these from
         # SSO once we support OAuth 2.0 access tokens.
@@ -31,12 +30,12 @@ class MocNewProjectWithUserAction(projects.NewProjectWithUserAction):
         'organization_role',
 
         'phone',
-        'project_description',
         'moc_contact'
     ]
 
-    def __init__(self, *args, **kwargs):
-        super(MocNewProjectWithUserAction, self).__init__(*args, **kwargs)
+    def _validate_domain_id(self):
+        # We're fine with projects not matching the domain of the users.
+        return True
 
 
 class MocNewUserAction(users.NewUserAction):

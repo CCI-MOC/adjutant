@@ -372,8 +372,6 @@ class SignUp(tasks.CreateProject):
 
     task_type = "signup"
 
-    default_actions = ['MocNewProjectWithUserAction']
-
     def get(self, request):
         """
         The SignUp endpoint does not support GET.
@@ -383,7 +381,6 @@ class SignUp(tasks.CreateProject):
 
     @utils.authenticated
     def post(self, request, format=None):
-        request.data['email'] = request.keystone_user['username']
         return super(SignUp, self).post(request)
 
 

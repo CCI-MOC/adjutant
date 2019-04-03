@@ -68,5 +68,5 @@ register_action_class(
     SendAdditionalEmailAction, serializers.SendAdditionalEmailSerializer)
 
 # Register MOC actions
-register_action_class(moc_actions.MocNewProjectWithUserAction,
-                      moc_serializers.MocProjectWithUserSerializer)
+register_action_class(moc_actions.MocNewProjectAction,
+                      moc_serializers.MocNewProjectSerializer)

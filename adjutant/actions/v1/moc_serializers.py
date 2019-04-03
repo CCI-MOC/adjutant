@@ -16,11 +16,10 @@ from rest_framework import serializers
 from adjutant.actions.v1 import serializers as adjutant_serializers
 
 
-class MocProjectWithUserSerializer(
-    adjutant_serializers.NewProjectWithUserSerializer
+class MocNewProjectSerializer(
+    adjutant_serializers.NewProjectSerializer
 ):
     organization = serializers.CharField(max_length=64)
     organization_role = serializers.CharField(max_length=64)
     phone = serializers.CharField(max_length=64)
-    project_description = serializers.CharField(max_length=500)
     moc_contact = serializers.CharField(max_length=64)

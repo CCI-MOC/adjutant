@@ -13,15 +13,29 @@
 # under the License.
 
 import mock
+import yaml
 
 from rest_framework import status
 
 from adjutant.common.tests import fake_clients
-from adjutant.common.tests.utils import AdjutantAPITestCase
+from adjutant.common.tests.utils import AdjutantAPITestCase, modify_dict_settings
+
+SETTINGS = """
+TASK_SETTINGS:
+    signup:
+        default_actions:
+            - MocNewProjectAction
+"""
+SETTINGS = yaml.load(SETTINGS, Loader=yaml.FullLoader)
 
 
 @mock.patch('adjutant.common.user_store.IdentityManager',
             fake_clients.FakeManager)
+@modify_dict_settings(TASK_SETTINGS={
+        'key_list': ['signup'],
+        'operation': 'override',
+        'value': SETTINGS['TASK_SETTINGS']['signup']
+    })
 class MocApiTests(AdjutantAPITestCase):
 
     def test_signup_noauth(self):
@@ -55,12 +69,13 @@ class MocApiTests(AdjutantAPITestCase):
         url = "/v1/openstack/sign-up"
         headers = {
             'username': user.name,
+            'email': user.name,
             'user_id': user.id,
             'authenticated': True
         }
         data = {
             'project_name': 'demoproject1',
-            'project_description': 'demodescription',
+            'description': 'demodescription',
             'organization': 'Test Org',
             'moc_contact': 'Test Contact',
             'phone': '555 555 5555',
