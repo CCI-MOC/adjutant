@@ -22,4 +22,5 @@ class MocProjectWithUserSerializer(
     organization = serializers.CharField(max_length=64)
     organization_role = serializers.CharField(max_length=64)
     phone = serializers.CharField(max_length=64)
+    project_description = serializers.CharField(max_length=500)
     moc_contact = serializers.CharField(max_length=64)

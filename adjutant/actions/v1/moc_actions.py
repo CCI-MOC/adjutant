@@ -29,7 +29,9 @@ class MocNewProjectWithUserAction(projects.NewProjectWithUserAction):
         # SSO once we support OAuth 2.0 access tokens.
         'organization',
         'organization_role',
+
         'phone',
+        'project_description',
         'moc_contact'
     ]
 

@@ -60,6 +60,7 @@ class MocApiTests(AdjutantAPITestCase):
         }
         data = {
             'project_name': 'demoproject1',
+            'project_description': 'demodescription',
             'organization': 'Test Org',
             'moc_contact': 'Test Contact',
             'phone': '555 555 5555',

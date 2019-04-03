@@ -122,14 +122,14 @@ DEFAULT_TASK_SETTINGS:
 #             <action_class_name>:
 #                 <action_settings_overrides> ....
 DEFAULT_ACTION_SETTINGS:
-    NewProjectWithUserAction:
+    MocNewProjectWithUserAction:
         # These are the roles that are added to the user after project
         # approval.
         default_roles:
             - project_admin
             - member
     
-    NewUserAction:
+    MocNewUserAction:
         # These are the roles that are allowed to invite users to a project.
         allowed_roles:
             - project_admin
