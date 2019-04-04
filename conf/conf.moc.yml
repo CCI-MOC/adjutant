@@ -189,7 +189,7 @@ DEFAULT_ACTION_SETTINGS:
 TASK_SETTINGS:
     signup:
         default_actions:
-            - NewProjectAction
+            - MocNewProjectAction
         additional_actions:
             - NewProjectDefaultNetworkAction
             - SetProjectQuotaAction
@@ -301,80 +301,80 @@ PROJECT_QUOTA_SIZES:
     small:
         nova:
             instances: 10
-            cores: 20
+            cores: 50
             ram: 65536
-            floating_ips: 10
-            fixed_ips: 0
             metadata_items: 128
             injected_files: 5
             injected_file_content_bytes: 10240
             key_pairs: 50
+            floating_ips: 2
+            fixed_ips: 0
             security_groups: 20
             security_group_rules: 100
         cinder:
-            gigabytes: 5000
+            gigabytes: 500
             snapshots: 50
             volumes: 20
         neutron:
-            floatingip: 1
-            network: 3
+            floatingip: 2
+            network: 5
             port: 50
             router: 3
             security_group: 20
             security_group_rule: 100
-            subnet: 3
+            subnet: 10
 
     medium:
-        cinder:
-            gigabytes: 10000
-            volumes: 100
-            snapshots: 300
         nova:
+            instances: 30
+            cores: 200
+            ram: 262144
             metadata_items: 128
-            injected_file_content_bytes: 10240
-            ram: 327680
-            floating_ips: 25
-            key_pairs: 50
-            instances: 50
-            security_group_rules: 400
             injected_files: 5
-            cores: 100
+            injected_file_content_bytes: 10240
+            key_pairs: 50
+            floating_ips: 5
             fixed_ips: 0
             security_groups: 50
+            security_group_rules: 200
+        cinder:
+            gigabytes: 1000
+            snapshots: 100
+            volumes: 50
         neutron:
-            security_group_rule: 400
-            subnet: 5
-            network: 5
-            floatingip: 25
-            security_group: 50
+            floatingip: 5
+            network: 10
+            port: 150
             router: 5
-            port: 250
+            security_group: 50
+            security_group_rule: 200
+            subnet: 20
 
     large:
-        cinder:
-            gigabytes: 50000
-            volumes: 200
-            snapshots: 600
         nova:
-            metadata_items: 128
-            injected_file_content_bytes: 10240
-            ram: 655360
-            floating_ips: 50
-            key_pairs: 50
             instances: 100
-            security_group_rules: 800
+            cores: 500
+            ram: 786432
+            metadata_items: 128
             injected_files: 5
-            cores: 200
+            injected_file_content_bytes: 10240
+            key_pairs: 50
+            floating_ips: 10
             fixed_ips: 0
             security_groups: 100
+            security_group_rules: 500
+        cinder:
+            gigabytes: 2000
+            snapshots: 200
+            volumes: 100
         neutron:
-            security_group_rule: 800
-            subnet: 10
-            network: 10
-            floatingip: 50
-            security_group: 100
+            floatingip: 10
+            network: 20
+            port: 300
             router: 10
-            port: 500
+            security_group: 100
+            security_group_rule: 400
+            subnet: 40
 
 # Time in seconds to cache token from Keystone
 TOKEN_CACHE_TIME: 600
