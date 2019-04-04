@@ -122,7 +122,7 @@ DEFAULT_TASK_SETTINGS:
 #             <action_class_name>:
 #                 <action_settings_overrides> ....
 DEFAULT_ACTION_SETTINGS:
-    MocNewProjectWithUserAction:
+    MocNewProjectAction:
         # These are the roles that are added to the user after project
         # approval.
         default_roles:
@@ -190,9 +190,8 @@ TASK_SETTINGS:
     signup:
         default_actions:
             - MocNewProjectAction
-        additional_actions:
-            - NewProjectDefaultNetworkAction
             - SetProjectQuotaAction
+            - NewProjectDefaultNetworkAction
         emails:
             initial:
                 subject: Your OpenStack signup has been received
