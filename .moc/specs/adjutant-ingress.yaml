@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+spec:
+  rules:
+  - host: adjutant-onboarding.k-apps.osh.massopen.cloud
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: adjutant
+          servicePort: 8080

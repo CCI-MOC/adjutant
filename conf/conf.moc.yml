@@ -1,5 +1,5 @@
 # General settings
-SECRET_KEY: 'test'
+SECRET_KEY: "%SECRET_KEY%"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG: True
@@ -13,11 +13,11 @@ ADDITIONAL_APPS:
 DATABASES:
     default:
         ENGINE: django.db.backends.mysql
-        NAME: "adjutant"
-        USER: "adjutant"
-        PASSWORD: ""
-        HOST: mariadb-adjutant
+        HOST: "adjutant-database"
         PORT: 3306
+        NAME: "adjutant"
+        USER: "%DB_USER%"
+        PASSWORD: "%DB_PASSWORD%"
 
 LOGGING:
     version: 1
@@ -45,7 +45,12 @@ LOGGING:
             propagate: False
 
 EMAIL_SETTINGS:
-    EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
+    EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+    EMAIL_HOST: "%EMAIL_HOST%"
+    EMAIL_PORT: 465
+    EMAIL_HOST_USER: "%EMAIL_USERNAME%"
+    EMAIL_HOST_PASSWORD: "%EMAIL_PASSWORD%"
+    EMAIL_USE_TLS: True
 
 # setting to control if user name and email are allowed
 # to have different values.
@@ -53,11 +58,12 @@ USERNAME_IS_EMAIL: True
 
 # Keystone config
 KEYSTONE:
-    username: admin
-    password: nomoresecret
-    project_name: admin
+    auth_url: "%OPENSTACK_AUTH_URL%"
+    username: "%OPENSTACK_USERNAME%"
+    password: "%OPENSTACK_PASSWORD%"
+    project_name: "%OPENSTACK_PROJECT%"
     # MUST BE V3 API:
-    auth_url: http://devstack/identity/v3
+
     domain_id: default
     can_edit_users: True
 
@@ -128,7 +134,7 @@ DEFAULT_ACTION_SETTINGS:
         default_roles:
             - project_admin
             - member
-    
+
     MocNewUserAction:
         # These are the roles that are allowed to invite users to a project.
         allowed_roles:
@@ -143,8 +149,8 @@ DEFAULT_ACTION_SETTINGS:
             router_name: default_router
             public_network: 391cff16-da12-4592-b710-731a319fd104
             DNS_NAMESERVERS:
-                - 8.8.8.8
-                - 8.8.4.4
+                - 128.31.24.11
+                - 128.31.24.12
             SUBNET_CIDR: 10.0.0.0/24
 
     SetProjectQuotaAction:
@@ -157,33 +163,33 @@ DEFAULT_ACTION_SETTINGS:
         days_between_autoapprove: 30
 
     SendAdditionalEmailAction:
-      initial:
-          email_current_user: False
-          reply: no-reply@example.com
-          from: bounce+%(task_uuid)s@example.com
-          subject: "Openstack Email Notification"
-          template: null
-      token:
-          email_current_user: False
-          reply: no-reply@example.com
-          from: bounce+%(task_uuid)s@example.com
-          subject: "Openstack Email Notification"
-          template: null
-      completed:
-          email_current_user: False
-          reply: no-reply@example.com
-          from: bounce+%(task_uuid)s@example.com
-          subject: "Openstack Email Notification"
-          template: null
-          # A null template will cause the email not to send
-          # Also emails to the given roles on the project
-          # email_roles:
-          #   - project_admin
-          # Or sends to an email set in the task cache
-          # email_task_cache: True
-          # Or sends to an arbitrary admin email
-          # email_additional_addresses:
-          #   - admin@example.org
+        initial:
+            email_current_user: False
+            reply: no-reply@example.com
+            from: bounce+%(task_uuid)s@example.com
+            subject: "Openstack Email Notification"
+            template: null
+        token:
+            email_current_user: False
+            reply: no-reply@example.com
+            from: bounce+%(task_uuid)s@example.com
+            subject: "Openstack Email Notification"
+            template: null
+        completed:
+            email_current_user: False
+            reply: no-reply@example.com
+            from: bounce+%(task_uuid)s@example.com
+            subject: "Openstack Email Notification"
+            template: null
+            # A null template will cause the email not to send
+            # Also emails to the given roles on the project
+            # email_roles:
+            #   - project_admin
+            # Or sends to an email set in the task cache
+            # email_task_cache: True
+            # Or sends to an arbitrary admin email
+            # email_additional_addresses:
+            #   - admin@example.org
 
 # These are cascading overrides for the default settings:
 TASK_SETTINGS:

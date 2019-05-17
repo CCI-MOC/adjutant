@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  labels:
+    app: adjutant
+  name: adjutant
+spec:
+  host: adjutant-onboarding.k-apps.osh.massopen.cloud
+  port:
+    targetPort: 443-https
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: adjutant

@@ -1,16 +1,20 @@
 FROM centos/python-36-centos7
 
-MAINTAINER "Kristi Nikolla <knikolla@bu.edu>"
+LABEL author="Kristi Knikolla <knikolla@bu.edu>"
 
 ENV PBR_VERSION 0.1
 
-LABEL io.k8s.description="MOC Onboarding system built on Adjutant" \
-      io.k8s.display-name="Adjutant-MOC" \
-      io.openshift.expose-services="8080:http" \
+COPY --chown=1001:0 . /app
+RUN pip install -U pip setuptools && \
+    pip install /app
 
+# Note(knikolla): This is required to support the random
+# user IDs that OpenShift enforces.
+# https://docs.openshift.com/enterprise/3.2/creating_images/guidelines.html
+RUN chmod -R g+rwX /app
 
-COPY ./.s2i/bin/ /usr/libexec/s2i
+EXPOSE 8080
 
 USER 1001
 
-EXPOSE 8080
+ENTRYPOINT [ "/app/run_adjutant.sh" ]

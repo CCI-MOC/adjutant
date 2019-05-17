@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  labels:
+    app: adjutant
+  name: adjutant-moc
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - from:
+      kind: DockerImage
+      name: massopencloud/adjutant-moc:r1
+    name: r1
+    referencePolicy:
+      type: Source
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adjutant
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  labels:
+    app: adjutant
+spec:
+  ports:
+  - name: 443-https
+    port: 443
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: adjutant
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adjutant-deployment
+  labels:
+    app: adjutant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adjutant
+  template:
+    metadata:
+      labels:
+        app: adjutant
+    spec:
+      containers:
+      - name: adjutant
+        image: massopencloud/adjutant-moc:r1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-database
+              key: database-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-database
+              key: database-password
+        - name: OPENSTACK_AUTH_URL
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: openstack_auth_url
+        - name: OPENSTACK_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: openstack_username
+        - name: OPENSTACK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: openstack_password
+        - name: OPENSTACK_PROJECT
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: openstack_project
+        - name: EMAIL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: email_host
+        - name: EMAIL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: adjutant-secret
+              key: email_username
+        - name: EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: email_password
+              name: adjutant-secret
