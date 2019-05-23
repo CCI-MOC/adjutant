@@ -9,3 +9,4 @@ build/
 .tox/*
 env/*
 cover/*
+.moc/specs/adjutant-secret.yaml

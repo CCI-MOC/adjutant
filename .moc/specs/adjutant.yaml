@@ -36,7 +36,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adjutant-deployment
+  name: adjutant
   labels:
     app: adjutant
 spec:
@@ -101,3 +101,21 @@ spec:
             secretKeyRef:
               key: email_password
               name: adjutant-secret
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  labels:
+    app: adjutant
+  name: adjutant
+spec:
+  host: adjutant.massopen.cloud
+  port:
+    targetPort: 443-https
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: adjutant
