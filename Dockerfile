@@ -5,11 +5,13 @@ LABEL author="Kristi Nikolla <knikolla@bu.edu>"
 
 ENV PBR_VERSION 0.1
 
-RUN dnf install -y gcc mariadb-devel python3-devel libffi-devel openssl-devel
+# Bug https://bugzilla.redhat.com/show_bug.cgi?id=1694411
+RUN echo "zchunk=False" >> /etc/dnf/dnf.conf && \
+    dnf install -y gcc python3-devel python3 python3-pip \
+        libffi-devel openssl-devel mariadb mariadb-devel
 
 COPY --chown=1001:0 . /app
-RUN pip3 install -U pip setuptools && \
-    pip3 install /app
+RUN pip3 install /app
 
 # Note(knikolla): This is required to support the random
 # user IDs that OpenShift enforces.

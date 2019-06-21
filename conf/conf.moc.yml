@@ -13,7 +13,7 @@ ADDITIONAL_APPS:
 DATABASES:
     default:
         ENGINE: django.db.backends.mysql
-        HOST: "adjutant-database"
+        HOST: "%DB_HOST%"
         PORT: 3306
         NAME: "adjutant"
         USER: "%DB_USER%"
@@ -22,32 +22,35 @@ DATABASES:
 LOGGING:
     version: 1
     disable_existing_loggers: False
+    formatters:
+        simple:
+            format: "%(asctime)s - %(levelname)s - %(message)s"
     handlers:
-        file:
-            level: INFO
-            class: logging.FileHandler
-            filename: reg_log.log
+        console:
+            level: DEBUG
+            class: logging.StreamHandler
+            formatter: simple
     loggers:
         adjutant:
             handlers:
-                - file
-            level: INFO
+                - console
+            level: DEBUG
             propagate: False
         django:
             handlers:
-                - file
-            level: INFO
+                - console
+            level: DEBUG
             propagate: False
         keystonemiddleware:
             handlers:
-                - file
+                - console
             level: INFO
             propagate: False
 
 EMAIL_SETTINGS:
     EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
     EMAIL_HOST: "%EMAIL_HOST%"
-    EMAIL_PORT: 465
+    EMAIL_PORT: "%EMAIL_PORT%"
     EMAIL_HOST_USER: "%EMAIL_USERNAME%"
     EMAIL_HOST_PASSWORD: "%EMAIL_PASSWORD%"
     EMAIL_USE_TLS: True
@@ -67,7 +70,7 @@ KEYSTONE:
     domain_id: default
     can_edit_users: True
 
-HORIZON_URL: http://localhost:8080/
+HORIZON_URL: https://onboarding.massopen.cloud
 
 # time for the token to expire in hours
 TOKEN_EXPIRE_TIME: 24
@@ -79,22 +82,22 @@ DEFAULT_TASK_SETTINGS:
     emails:
         initial:
             subject: Initial Confirmation
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
+            reply: "%EMAIL_USERNAME%"
+            from: "%EMAIL_USERNAME%"
             template: initial.txt
             # html_template: initial.txt
         # If the related actions 'can' send a token,
         # this field should here.
         token:
             subject: Your Token
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
+            reply: "%EMAIL_USERNAME%"
+            from: "%EMAIL_USERNAME%"
             template: token.txt
             # html_template: token.txt
         completed:
             subject: Task completed
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
+            reply: "%EMAIL_USERNAME%"
+            from: "%EMAIL_USERNAME%"
             template: completed.txt
             # html_template: completed.txt
 
@@ -102,16 +105,16 @@ DEFAULT_TASK_SETTINGS:
         EmailNotification:
             standard:
                 emails:
-                    - example@example.com
-                reply: no-reply@example.com
-                from: bounce+%(task_uuid)s@example.com
+                    - onboarding@lists.massopen.cloud
+                reply: "%EMAIL_USERNAME%"
+                from: "%EMAIL_USERNAME%"
                 template: notification.txt
                 # html_template: completed.txt
             error:
                 emails:
-                    - example@example.com
-                reply: no-reply@example.com
-                from: bounce+%(task_uuid)s@example.com
+                    - onboarding@lists.massopen.cloud
+                reply: "%EMAIL_USERNAME%"
+                from: "%EMAIL_USERNAME%"
                 template: notification.txt
                 # html_template: completed.txt
 
@@ -135,6 +138,18 @@ DEFAULT_ACTION_SETTINGS:
             - project_admin
             - member
 
+    MailingListSubscribeAction:
+        initial: null
+        token: null
+        completed:
+            email_current_user: False
+            email_additional_addresses:
+                - kaizen-users-request@lists.massopen.cloud
+            reply: onboarding@lists.massopen.cloud
+            from: "%EMAIL_USERNAME%"
+            subject: ""
+            template: signup_subscribe.txt
+
     MocNewUserAction:
         # These are the roles that are allowed to invite users to a project.
         allowed_roles:
@@ -142,12 +157,12 @@ DEFAULT_ACTION_SETTINGS:
             - project_mod
 
     NewProjectDefaultNetworkAction:
-        RegionOne:
+        MOC_Kaizen:
             # This is the default network created upon approval of a project.
             network_name: default_network
             subnet_name: default_subnet
             router_name: default_router
-            public_network: 391cff16-da12-4592-b710-731a319fd104
+            public_network: "%PUBLIC_NETWORK_ID%"
             DNS_NAMESERVERS:
                 - 128.31.24.11
                 - 128.31.24.12
@@ -155,41 +170,12 @@ DEFAULT_ACTION_SETTINGS:
 
     SetProjectQuotaAction:
         regions:
-            RegionOne:
+            MOC_Kaizen:
                 # This is the default tier of projects created.
                 quota_size: small
 
     UpdateProjectQuotasAction:
         days_between_autoapprove: 30
-
-    SendAdditionalEmailAction:
-        initial:
-            email_current_user: False
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
-            subject: "Openstack Email Notification"
-            template: null
-        token:
-            email_current_user: False
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
-            subject: "Openstack Email Notification"
-            template: null
-        completed:
-            email_current_user: False
-            reply: no-reply@example.com
-            from: bounce+%(task_uuid)s@example.com
-            subject: "Openstack Email Notification"
-            template: null
-            # A null template will cause the email not to send
-            # Also emails to the given roles on the project
-            # email_roles:
-            #   - project_admin
-            # Or sends to an email set in the task cache
-            # email_task_cache: True
-            # Or sends to an arbitrary admin email
-            # email_additional_addresses:
-            #   - admin@example.org
 
 # These are cascading overrides for the default settings:
 TASK_SETTINGS:
@@ -198,25 +184,30 @@ TASK_SETTINGS:
             - MocNewProjectAction
             - SetProjectQuotaAction
             - NewProjectDefaultNetworkAction
+            - MailingListSubscribeAction
         emails:
             initial:
-                subject: Your OpenStack signup has been received
+                subject: Your Mass Open Cloud project request has been received
+                from: "%EMAIL_USERNAME%"
+                reply: onboarding@lists.massopen.cloud
                 template: signup_initial.txt
             token:
-                subject: Your OpenStack signup has been approved
-                template: signup_token.txt
+                subject: Your Mass Open Cloud project request has been approved
+                template: null
             completed:
-                subject: Your OpenStack signup has been completed
-                template: signup_completed.txt
+                subject: Your Mass Open Cloud project request has been approved
+                html_template: signup_completed.txt
+                from: "%EMAIL_USERNAME%"
+                reply: onboarding@lists.massopen.cloud
         notifications:
             EmailNotification:
                 standard:
                     emails:
-                        - signups@example.com
+                        - onboarding@lists.massopen.cloud
                 error:
                     emails:
-                        - signups@example.com
-        default_region: RegionOne
+                        - onboarding@lists.massopen.cloud
+        default_region: MOC_Kaizen
         # If 'None' (null in yaml) will default to domain as parent.
         # If domain isn't set explicity will service user domain (see KEYSTONE).
         default_parent_id: null

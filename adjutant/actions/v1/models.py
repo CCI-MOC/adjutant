@@ -70,3 +70,6 @@ register_action_class(
 # Register MOC actions
 register_action_class(moc_actions.MocNewProjectAction,
                       moc_serializers.MocNewProjectSerializer)
+
+register_action_class(moc_actions.MailingListSubscribeAction,
+                      moc_serializers.MailingListSubscribeSerializer)

@@ -1,0 +1,63 @@
+---
+- hosts: sso
+  become: yes
+
+  tasks:
+  - name: Install packages
+    package: name="{{ item }}" state=present
+    with_items:
+    - docker
+    - docker-compose
+    - httpd
+    - python-docker-py
+    - git
+    - mariadb-server
+    - MySQL-python
+
+  - name: Allow Apache to connect to Adjutant
+    seboolean:
+      name: httpd_can_network_relay
+      state: yes
+      persistent: yes
+
+  - name: Configure Apache Proxy
+    template:
+      src: files/adjutant.conf.j2
+      dest: /etc/httpd/conf.d/adjutant.conf
+    notify:
+    - httpd_restart
+
+  - name: Start services
+    service: name="{{ item }}" state=started
+    with_items:
+    - docker
+    - httpd
+
+  - name: Ensures /root/adjutant dir exists
+    file: path=/root/adjutant state=directory
+
+  - name: Copy docker-compose.yml to /root/sso
+    template:
+      src: files/docker-compose.yml.j2
+      dest: /root/adjutant/docker-compose.yml
+
+  - name: Start MariaDB
+    service: name=mariadb state=started
+
+  - name: Create keycloak database
+    mysql_db:
+      name: adjutant
+      state: present
+
+  - name: Create user adjutant and grant permissions
+    mysql_user:
+      name: adjutant
+      host: "{{ mysql_allowed_hosts }}"
+      password: "{{ db_password }}"
+      priv: 'adjutant.*:ALL'
+      state: present
+
+  handlers:
+  - name: httpd_restart
+    service: name=httpd state=restarted
+    become: yes

@@ -90,7 +90,9 @@ class EmailNotification(NotificationEngine):
             notification_url = settings.HORIZON_URL
             if not task_url.endswith('/'):
                 task_url += '/'
-            task_url += 'management/tasks/%s' % task.uuid
+            task_url += 'management/%s' % task.uuid
+            if not notification_url.endswith('/'):
+                notification_url += '/'
             notification_url += (
                 'management/notifications/%s' % notification.uuid)
             context['task_url'] = task_url

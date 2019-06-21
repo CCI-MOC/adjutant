@@ -1,14 +1,34 @@
-{% spaceless %}
-{% if task.cache.user_state == "default" %}
-This email is to confirm that your Openstack signup has been completed and your new user and password have now been set up.
-{% elif task.cache.user_state == "existing" %}
-This email is to confirm that your Openstack signup has been completed and your existing user has access to your new project.
-{% elif task.cache.user_state == "disabled" %}
-This email is to confirm that your Openstack signup has been completed and your existing user has been re-enabled and given access to your new project.
-{% endif %}
-{% endspaceless %}
+<html>
+    <body>
+        <img src="https://kaizen.massopen.cloud/dashboard/static/themes/moc_theme/images/logo.svg" />
 
-If you did not do this yourself, please get in touch with your systems administrator to report suspicious activity and secure your account.
+        <h1>You project request has been approved.</h1>
 
-Kind regards,
-The Openstack team
+        <div style="background: #BEBEBE; padding: 0.5em; border: 1px solid black">
+            <p>You will have received another email alongside this one
+                from <em>kaizen-users-request@lists.massopen.cloud</em>. <strong>Please follow
+                the instructions there</strong> to subscribe to the users mailing
+                list. <strong>This is very important</strong>, since all notifications about
+                outages are published there and you will be missing out on
+                important information if you don't do so.
+            </p>
+        </div>
+
+        <h2>Getting Started</h2>
+
+        <p>The OpenStack dashboard is available at
+            <a href="https://kaizen.massopen.cloud"><strong>kaizen.massopen.cloud</strong></a>.
+        </p>
+
+        <p>If you're new to OpenStack, or need to refresh your knowledge, we have
+            documentation available at
+            <a href="https://docs.massopen.cloud/en/latest/">docs.massopen.cloud</a>.
+            Click <a href="https://docs.massopen.cloud/en/latest/openstack/OpenStack-Tutorial-Index.html">here</a>
+            to go directly to the OpenStack tutorials page.
+        </p>
+
+        <p>Thank you,<br/>
+            Mass Open Cloud Team
+        </p>
+    </body>
+</html>

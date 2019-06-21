@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  adjutant-moc:
+    container_name: adjutant-moc
+    image: massopencloud/adjutant-moc:r4
+    environment:
+      SECRET_KEY: {{ secret_key }}
+      DB_USER: adjutant
+      DB_HOST: "{{ docker_host_ip }}"
+      DB_PASSWORD: "{{ db_password }}"
+      OPENSTACK_AUTH_URL: https://kaizenold.massopen.cloud/identity/v3
+      OPENSTACK_USERNAME: onboarding
+      OPENSTACK_PASSWORD: {{ openstack_password }}
+      OPENSTACK_PROJECT: admin
+      EMAIL_HOST: mail.massopen.cloud
+      EMAIL_USERNAME: onboarding@massopen.cloud
+      EMAIL_PASSWORD: {{ email_password }}
+      EMAIL_PORT: 25
+      PUBLIC_NETWORK_ID: "65e3840a-fd75-40c8-9d90-b460ee52a0c3"
+    ports:
+      - "8081:8080"  # host:container

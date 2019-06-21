@@ -9,4 +9,7 @@ build/
 .tox/*
 env/*
 cover/*
+
+# Mass Open Cloud Specific
 .moc/specs/adjutant-secret.yaml
+playbooks/hosts.ini

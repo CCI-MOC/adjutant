@@ -12,7 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from adjutant.actions.v1 import (projects, users)
+from django.conf import settings
+
+from adjutant.actions.v1 import (misc, projects, users)
 from adjutant.common import user_store
 from adjutant.actions.utils import validate_steps
 
@@ -33,10 +35,16 @@ class MocNewProjectAction(projects.NewProjectAction):
         'moc_contact'
     ]
 
+    def _get_email(self):
+        if settings.USERNAME_IS_EMAIL:
+            return self.action.task.keystone_user['username']
+
     def _validate_domain_id(self):
         # We're fine with projects not matching the domain of the users.
         return True
 
+class MailingListSubscribeAction(misc.SendAdditionalEmailAction):
+    pass
 
 class MocNewUserAction(users.NewUserAction):
     required = [
