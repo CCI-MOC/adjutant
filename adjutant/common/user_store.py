@@ -36,10 +36,13 @@ def get_managable_roles(user_roles):
     return managable_role_names
 
 
-def subtree_ids_list(subtree, id_list=[]):
+def subtree_ids_list(subtree, id_list=None):
+    if id_list is None:
+        id_list = []
+
     if not subtree:
         return id_list
-    for key in subtree.iterkeys():
+    for key in subtree.keys():
         id_list.append(key)
         if subtree[key]:
             subtree_ids_list(subtree[key], id_list)
@@ -154,7 +157,7 @@ class IdentityManager(object):  # pragma: no cover
                     except AttributeError:
                         # Just means the assignment is a group.
                         pass
-            for user_id, user in users.iteritems():
+            for user in users.values():
                 user.roles = list(set(user.roles))
         except ks_exceptions.NotFound:
             return []
