@@ -2,17 +2,7 @@
     <body>
         <img src="https://kaizen.massopen.cloud/dashboard/static/themes/moc_theme/images/logo.svg" />
 
-        <h1>You project request has been approved.</h1>
-
-        <div style="background: #BEBEBE; padding: 0.5em; border: 1px solid black">
-            <p>You will have received another email alongside this one
-                from <em>kaizen-users-request@lists.massopen.cloud</em>. <strong>Please follow
-                the instructions there</strong> to subscribe to the users mailing
-                list. <strong>This is very important</strong>, since all notifications about
-                outages are published there and you will be missing out on
-                important information if you don't do so.
-            </p>
-        </div>
+        <h1>Your project request has been approved.</h1>
 
         <h2>Getting Started</h2>
 

@@ -13,8 +13,9 @@
 # under the License.
 
 from django.conf import settings
+import paramiko
 
-from adjutant.actions.v1 import (misc, projects, users)
+from adjutant.actions.v1 import (base, misc, projects, users)
 from adjutant.common import user_store
 from adjutant.actions.utils import validate_steps
 
@@ -43,8 +44,69 @@ class MocNewProjectAction(projects.NewProjectAction):
         # We're fine with projects not matching the domain of the users.
         return True
 
-class MailingListSubscribeAction(misc.SendAdditionalEmailAction):
-    pass
+
+class MailingListSubscribeAction(base.BaseAction):
+
+    def _get_email(self):
+        if settings.USERNAME_IS_EMAIL:
+            return self.action.task.keystone_user['username']
+
+    def _mailman(self, command):
+        key = paramiko.RSAKey.from_private_key_file(
+            self.settings['private_key'])
+        client = paramiko.client.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname=self.settings['host'],
+                       port=self.settings['port'],
+                       username=self.settings['user'],
+                       pkey=key)
+
+        stdin, stdout, stderr = client.exec_command(command)
+
+        errors = stderr.read()
+        if errors:
+            self.add_note('Error executing mailman command, check logs.')
+            raise ConnectionError(errors)
+
+        # Note(knikolla): Not entirely sure if closing before reading is fine.
+        r = stdout.read().decode('utf-8').split('\n')
+        client.close()
+        return r
+
+    def _is_already_subscribed(self):
+        command = ('/usr/lib/mailman/bin/list_members %s'
+                   % self.settings['list'])
+        members = self._mailman(command)
+        return self._get_email() in members
+
+    def _subscribe(self):
+        command = (
+                'echo %s | /usr/lib/mailman/bin/add_members -r - %s'
+                % (self._get_email(), self.settings['list'])
+        )
+        self._mailman(command)
+
+    def _pre_approve(self):
+        self.action.need_token = False
+        self.action.valid = True
+        self.action.state = 'pending'
+        self.action.save()
+
+    def _post_approve(self):
+        if self._is_already_subscribed():
+            self.add_note('Email %s already subscribed to mailing list.'
+                          % self._get_email())
+        else:
+            self._subscribe()
+            self.add_note('Email %s successfully subscribed to mailing list.'
+                          % self._get_email())
+        self.action.state = 'complete'
+        self.action.save()
+
+    def _submit(self, token_data):
+        # No token submission required
+        raise AssertionError
+
 
 class MocNewUserAction(users.NewUserAction):
     required = [

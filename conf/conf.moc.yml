@@ -139,16 +139,7 @@ DEFAULT_ACTION_SETTINGS:
             - member
 
     MailingListSubscribeAction:
-        initial: null
-        token: null
-        completed:
-            email_current_user: False
-            email_additional_addresses:
-                - kaizen-users-request@lists.massopen.cloud
-            reply: onboarding@lists.massopen.cloud
-            from: "%EMAIL_USERNAME%"
-            subject: ""
-            template: signup_subscribe.txt
+
 
     MocNewUserAction:
         # These are the roles that are allowed to invite users to a project.
@@ -207,6 +198,12 @@ TASK_SETTINGS:
                 error:
                     emails:
                         - onboarding@lists.massopen.cloud
+        MailingListSubscribeAction:
+            host: mail.massopen.cloud
+            port: 2228
+            user: moc-tools
+            list: kaizen-users
+            private_key: /root/.ssh/id_rsa
         default_region: MOC_Kaizen
         # If 'None' (null in yaml) will default to domain as parent.
         # If domain isn't set explicity will service user domain (see KEYSTONE).

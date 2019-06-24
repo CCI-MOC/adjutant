@@ -25,9 +25,9 @@ TASK_SETTINGS:
     signup:
         default_actions:
             - MocNewProjectAction
-        additional_actions:
             - NewProjectDefaultNetworkAction
             - SetProjectQuotaAction
+        default_region: RegionOne
 """
 SETTINGS = yaml.load(SETTINGS, Loader=yaml.FullLoader)
 
@@ -83,8 +83,7 @@ class MocApiTests(AdjutantAPITestCase):
             'moc_contact': 'Test Contact',
             'phone': '555 555 5555',
             'organization_role': 'dungeon master',
-            'region': 'RegionOne',
-            'setup_network': True
+            'setup_network': True,
         }
         response = self.client.post(url, data, format='json', headers=headers)
-        self.assertEqual(response.data, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

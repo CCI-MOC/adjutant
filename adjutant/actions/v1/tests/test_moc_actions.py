@@ -13,6 +13,7 @@
 # under the License.
 
 import mock
+import yaml
 import uuid
 
 from adjutant.api.models import Task
@@ -71,3 +72,67 @@ class UserActionTests(AdjutantTestCase):
         fake_client = fake_clients.FakeManager()
         roles = fake_client._get_roles_as_names(user, project)
         self.assertEqual(roles, ['_member_'])
+
+
+MAILMAN_SETTINGS = """
+MailingListSubscribeAction:
+    host: server.example.com
+    port: 22
+    user: onboarding
+    list: kaizen-users
+    private_key: /root/.ssh/id_rsa
+"""
+MAILMAN_SETTINGS = yaml.load(MAILMAN_SETTINGS, Loader=yaml.FullLoader)
+
+
+@modify_dict_settings(DEFAULT_ACTION_SETTINGS={
+        'key_list': ['MailingListSubscribeAction'],
+        'operation': 'override',
+        'value': MAILMAN_SETTINGS['MailingListSubscribeAction']
+    })
+class MocTests(AdjutantTestCase):
+
+    def test_mailing_list_subscribe(self):
+        task = Task.objects.create(
+            ip_address="0.0.0.0",
+            keystone_user={'username': 'test@example.com'})
+        action = moc_actions.MailingListSubscribeAction({}, task=task,
+                                                        order=1)
+
+        action.pre_approve()
+        self.assertEqual('pending', action.action.state)
+
+        with mock.patch.object(
+                moc_actions.MailingListSubscribeAction,
+                '_mailman',
+                return_value=['blabla@example.com']) as mailman:
+            action.post_approve()
+            mailman.assert_has_calls([
+                mock.call('/usr/lib/mailman/bin/list_members kaizen-users'),
+                mock.call('echo test@example.com | /usr/lib/mailman/bin/add_members -r - kaizen-users')
+            ])
+
+        self.assertEqual('complete', action.action.state)
+
+    def test_mailing_list_subscribe_existing(self):
+        task = Task.objects.create(
+            ip_address="0.0.0.0",
+            keystone_user={'username': 'test@example.com'})
+        action = moc_actions.MailingListSubscribeAction({}, task=task,
+                                                        order=1)
+
+        action.pre_approve()
+        self.assertEqual(action.action.state, 'pending')
+
+        with mock.patch.object(
+                moc_actions.MailingListSubscribeAction,
+                '_mailman',
+                return_value=['test@example.com']
+        ) as mailman:
+            action.post_approve()
+            mailman.assert_called_once_with(
+                '/usr/lib/mailman/bin/list_members kaizen-users'
+            )
+            self.assertEqual('complete', action.action.state)
+
+        self.assertEqual('complete', action.action.state)
