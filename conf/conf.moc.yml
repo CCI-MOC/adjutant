@@ -148,7 +148,7 @@ DEFAULT_ACTION_SETTINGS:
             - project_mod
 
     NewProjectDefaultNetworkAction:
-        MOC_Kaizen:
+        moc-kzn:
             # This is the default network created upon approval of a project.
             network_name: default_network
             subnet_name: default_subnet
@@ -161,7 +161,7 @@ DEFAULT_ACTION_SETTINGS:
 
     SetProjectQuotaAction:
         regions:
-            MOC_Kaizen:
+            moc-kzn:
                 # This is the default tier of projects created.
                 quota_size: small
 
@@ -176,6 +176,13 @@ TASK_SETTINGS:
             - SetProjectQuotaAction
             - NewProjectDefaultNetworkAction
             - MailingListSubscribeAction
+        action_settings:
+            MailingListSubscribeAction:
+                host: mail.massopen.cloud
+                port: 22
+                user: moc-tools
+                list: kaizen-users
+                private_key: /.ssh/id_rsa
         emails:
             initial:
                 subject: Your Mass Open Cloud project request has been received
@@ -198,13 +205,7 @@ TASK_SETTINGS:
                 error:
                     emails:
                         - onboarding@lists.massopen.cloud
-        MailingListSubscribeAction:
-            host: mail.massopen.cloud
-            port: 2228
-            user: moc-tools
-            list: kaizen-users
-            private_key: /root/.ssh/id_rsa
-        default_region: MOC_Kaizen
+        default_region: moc-kzn
         # If 'None' (null in yaml) will default to domain as parent.
         # If domain isn't set explicity will service user domain (see KEYSTONE).
         default_parent_id: null

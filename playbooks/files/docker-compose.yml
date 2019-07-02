@@ -9,7 +9,7 @@ services:
       DB_USER: adjutant
       DB_HOST: "{{ docker_host_ip }}"
       DB_PASSWORD: "{{ db_password }}"
-      OPENSTACK_AUTH_URL: https://kaizenold.massopen.cloud/identity/v3
+      OPENSTACK_AUTH_URL: https://kaizen.massopen.cloud:13000/v3
       OPENSTACK_USERNAME: onboarding
       OPENSTACK_PASSWORD: {{ openstack_password }}
       OPENSTACK_PROJECT: admin
@@ -17,6 +17,8 @@ services:
       EMAIL_USERNAME: onboarding@massopen.cloud
       EMAIL_PASSWORD: {{ email_password }}
       EMAIL_PORT: 25
-      PUBLIC_NETWORK_ID: "65e3840a-fd75-40c8-9d90-b460ee52a0c3"
+      PUBLIC_NETWORK_ID: "71b97520-69af-4c35-8153-cdf827d96e60"
     ports:
       - "8081:8080"  # host:container
+    volumes:
+      - "./ssh:/.ssh"

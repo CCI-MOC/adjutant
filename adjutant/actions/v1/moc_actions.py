@@ -104,8 +104,7 @@ class MailingListSubscribeAction(base.BaseAction):
         self.action.save()
 
     def _submit(self, token_data):
-        # No token submission required
-        raise AssertionError
+        pass
 
 
 class MocNewUserAction(users.NewUserAction):

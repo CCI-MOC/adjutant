@@ -33,13 +33,13 @@
     - docker
     - httpd
 
-  - name: Ensures /root/adjutant dir exists
-    file: path=/root/adjutant state=directory
+  - name: Ensures /app/adjutant dir exists
+    file: path=/app/adjutant state=directory
 
-  - name: Copy docker-compose.yml to /root/sso
+  - name: Copy docker-compose.yml to /app/adjutant
     template:
-      src: files/docker-compose.yml.j2
-      dest: /root/adjutant/docker-compose.yml
+      src: files/docker-compose.yml
+      dest: /app/adjutant/docker-compose.yml
 
   - name: Start MariaDB
     service: name=mariadb state=started
