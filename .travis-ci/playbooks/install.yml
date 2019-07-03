@@ -1,0 +1,33 @@
+---
+- hosts: onboarding-tests
+
+  tasks:
+
+  - package:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - python3
+      - python3-dev
+
+  - pip:
+      requirements: "{{ item }}"
+      extra_args: --user
+    loop:
+      - "{{ lookup('env', 'TRAVIS_BUILD_DIR') }}/requirements.txt"
+      - "{{ lookup('env', 'TRAVIS_BUILD_DIR') }}/test-requirements.txt"
+
+  - pip:
+      name: "{{ lookup('env', 'TRAVIS_BUILD_DIR') }}"
+      extra_args: --user
+
+  - git:
+      repo: https://opendev.org/openstack/devstack
+      dest: "{{ lookup('env', 'HOME') }}/devstack"
+      depth: 1
+
+  - copy:
+      src: files/local.conf
+      dest: "{{ lookup('env', 'HOME') }}/devstack/local.conf"
+
+  - command: "{{ lookup('env', 'HOME') }}/devstack/stack.sh > devstacklog.txt"

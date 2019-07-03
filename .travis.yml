@@ -1,10 +1,9 @@
-language: python
+language: generic
 dist: xenial
-python:
-  - "3.7"
+services:
+  - mysql
 install:
-  - pip install -r requirements.txt
-  - pip install -r test-requirements.txt
-  - pip install -e .
+  - travis_wait 30 .travis-ci/playbooks/install.sh
 script:
   - adjutant-api test
+  - .travis-ci/run_tests.sh

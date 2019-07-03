@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  adjutant-moc:
+    container_name: adjutant-moc
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: massopencloud/adjutant-moc:testing
+    environment:
+      SECRET_KEY: testingsecret
+      DB_USER: adjutant
+      DB_HOST: adjutant-database
+      DB_PASSWORD: nomoresecret
+      OPENSTACK_AUTH_URL: http://127.0.0.1/identity/v3
+      OPENSTACK_USERNAME: onboarding
+      OPENSTACK_PASSWORD: nomoresecret
+      OPENSTACK_PROJECT: admin
+      EMAIL_HOST: mail.massopen.cloud
+      EMAIL_USERNAME: onboarding@massopen.cloud
+      EMAIL_PASSWORD: nomoresecret
+      EMAIL_PORT: 25
+      PUBLIC_NETWORK_ID: "71b97520-69af-4c35-8153-cdf827d96e60"
+    ports:
+      - "8081:8080"  # host:container
+    volumes:
+      - "./ssh:/.ssh"
+
+  adjutant-database:
+    container_name: adjutant-database
+    image: mariadb:latest
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_DATABASE: adjutant
+      MYSQL_USER: adjutant
+      MYSQL_PASSWORD: nomoresecret
+    expose:
+      - "3306"
