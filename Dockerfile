@@ -1,5 +1,4 @@
-ARG IMAGE
-FROM $IMAGE
+FROM fedora:30
 
 LABEL author="Kristi Nikolla <knikolla@bu.edu>"
 

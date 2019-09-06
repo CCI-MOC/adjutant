@@ -125,7 +125,7 @@ class MocNewUserAction(users.NewUserAction):
 
         self.action.state = "pending"
         self.action.need_token = True
-        self.set_token_fields(["token"])
+        self.set_token_fields(["token", "confirm"])
 
         return True
 
@@ -141,7 +141,7 @@ class MocNewUserAction(users.NewUserAction):
     def _submit(self, token_data):
         self._validate()
 
-        if not self.valid:
+        if not self.valid or not token_data['confirm']:
             return
 
         id_manager = user_store.IdentityManager()
@@ -152,21 +152,26 @@ class MocNewUserAction(users.NewUserAction):
             self.add_note('Received request with invalid token')
             return False
 
-        roles = id_manager.get_roles(user, self.project_id)
+        if self.email != user['name']:
+            self.add_note('Email %s not the same as invited user %s'
+                          % user['name'], self.email)
+            return False
+
+        roles = id_manager.get_roles(user['id'], self.project_id)
         role_names = {role.name for role in roles}
         missing = set(self.roles) - role_names
         if not missing:
             self.action.need_token = False
             self.action.state = "complete"
             self.add_note(
-                'Accepted by %s. User already has roles.' % user.name
+                'Accepted by %s. User already has roles.' % user['name']
             )
         else:
             self.roles = list(missing)
-            self.grant_roles(user, self.roles, self.project_id)
-            self.grant_roles(user, self.inherited_roles, self.project_id, True)
+            self.grant_roles(user['id'], self.roles, self.project_id)
+            self.grant_roles(user['id'], self.inherited_roles, self.project_id, True)
 
             self.add_note(
                 'Accepted by %s. User added with roles %s on project %s.'
-                % (user.name, self.roles, self.project_id))
+                % (user['name'], self.roles, self.project_id))
         return True

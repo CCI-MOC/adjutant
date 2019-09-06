@@ -354,7 +354,7 @@ class InviteUser(TaskView):
 
     task_type = "invite_user"
 
-    default_actions = ['NewUserAction', ]
+    default_actions = ['MocNewUserAction', ]
 
     @utils.mod_or_admin
     def get(self, request):

@@ -73,3 +73,6 @@ register_action_class(moc_actions.MocNewProjectAction,
 
 register_action_class(moc_actions.MailingListSubscribeAction,
                       moc_serializers.MailingListSubscribeSerializer)
+
+register_action_class(moc_actions.MocNewUserAction,
+                      moc_serializers.MocNewUserSerializer)

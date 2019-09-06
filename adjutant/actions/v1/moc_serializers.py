@@ -24,6 +24,8 @@ class MocNewProjectSerializer(
     phone = serializers.CharField(max_length=64)
     moc_contact = serializers.CharField(max_length=64)
 
+class MocNewUserSerializer(adjutant_serializers.NewUserSerializer):
+    pass
 
 class MailingListSubscribeSerializer(serializers.Serializer):
     pass
