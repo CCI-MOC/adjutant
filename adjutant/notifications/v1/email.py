@@ -95,7 +95,7 @@ class EmailNotification(base.BaseNotificationHandler):
                 task_url += "/"
             if not notification_url.endswith("/"):
                 notification_url += "/"
-            task_url += "management/tasks/%s" % task.uuid
+            task_url += "management/%s" % task.uuid
             notification_url += "management/notifications/%s" % notification.uuid
             context["task_url"] = task_url
             context["notification_url"] = notification_url
